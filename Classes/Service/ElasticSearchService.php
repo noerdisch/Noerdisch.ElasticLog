@@ -183,14 +183,18 @@ class ElasticSearchService
         if ($this->securityContext !== null && $this->securityContext->isInitialized()) {
             $account = $this->securityContext->getAccount();
             if ($account !== null) {
-                $document['authenticated_account'] = $account->getAccountIdentifier() . ' (' . $this->persistenceManager->getIdentifierByObject($account) . ')';
+                $accountIdentifier = $this->persistenceManager->getIdentifierByObject($account);
+                $document['authenticated_account'] = $account->getAccountIdentifier();
+                $document['authenticated_account'] .= ' (' . $accountIdentifier . ')';
                 $document['authenticated_roles'] = implode(', ', array_keys($this->securityContext->getRoles()));
                 if ($this->objectManager->isRegistered(PartyService::class)) {
                     /** @var PartyService $partyService */
                     $partyService = $this->objectManager->get(PartyService::class);
                     $person = $partyService->getAssignedPartyOfAccount($account);
+                    $personIdentifier = $this->persistenceManager->getIdentifierByObject($person);
                     if ($person instanceof Person) {
-                        $document['authenticated_person'] = (string)$person->getName() . ' (' . $this->persistenceManager->getIdentifierByObject($person) . ')';
+                        $document['authenticated_person'] = (string)$person->getName();
+                        $document['authenticated_person'] .= ' (' . $personIdentifier . ')';
                     }
                 }
             }
