@@ -12,7 +12,7 @@
 The Noerdisch.ElasticLog Flow package logs exceptions and single messages to a configured elastic search server. This
 package also provides a backend to log message of Flows Logger classes to a elastic search server.
 
-The package was build on the Graylog package from Yeebase. Thanks to the nice people from Yeebase for sharing it.
+The package was build on the Graylog package from [Yeebase](https://github.com/yeebase/Yeebase.Graylog). Thanks to the nice people from Yeebase for sharing it.
 We did not use Graylog and wanted to use elastic without the man in the middle.
 
 ## Installation & configuration
@@ -32,6 +32,13 @@ Noerdisch:
         host: '127.0.0.1'
         port: 9200
         index: 'myIndex42'
+```
+
+We provide a command controller to setup you elastic search index. You can use it to create the index or to
+reset the logger.
+
+```bash
+./flow elasticindex:setup
 ```
 
 
