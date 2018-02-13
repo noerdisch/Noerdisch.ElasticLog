@@ -11,7 +11,7 @@ use Noerdisch\ElasticLog\Service\ElasticSearchService;
  * Class ElasticLogger
  * @package Noerdisch\ElasticLog\Log
  */
-class ElasticLogger extends Logger
+class ElasticLogger extends Logger implements ElasticLoggerInterface
 {
     /**
      * @Flow\Inject
