@@ -9,9 +9,9 @@ use Noerdisch\ElasticLog\Service\ElasticSearchService;
 
 
 /**
- * Command controller for indexing information for the search.
+ * Command controller for setup the logger index in the elastic search.
  *
- * @package Noerdisch\ErsteNachhilfe\Platform\Command
+ * @package Noerdisch\ElasticLog\Command
  */
 class ElasticIndexCommandController extends CommandController
 {
@@ -29,7 +29,7 @@ class ElasticIndexCommandController extends CommandController
     protected $indexName;
 
     /**
-     * Sets up the index and correctly configures all the types mappings
+     * Sets up the index
      *
      * @return void
      */
