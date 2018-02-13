@@ -42,7 +42,7 @@ If you wish to log normal log messages to your elastic server just use the provi
 
 ```php
 use Neos\Flow\Annotations as Flow;
-use Yeebase\Graylog\Log\GraylogLoggerInterface;
+use Noerdisch\ElasticLog\Log\ImportLoggerInterface;
 
 class SomeClass 
 {
