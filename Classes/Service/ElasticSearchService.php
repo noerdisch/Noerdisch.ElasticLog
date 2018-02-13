@@ -74,10 +74,11 @@ class ElasticSearchService
      * Converts exception data to an eleastic document and write the document to the elastic index.
      *
      * @param \Exception||\Throwable $exception
+     * @param array $exceptionContext
      * @return void
      * @throws \InvalidArgumentException
      */
-    public function logException($exception)
+    public function logException($exception, array $exceptionContext)
     {
         $statusCode = null;
         if ($exception instanceof FlowException) {
@@ -97,7 +98,7 @@ class ElasticSearchService
             $logLevel = 3; // error
         }
 
-        $document = $this->getDocumentFromException($exception, $logLevel);
+        $document = $this->getDocumentFromException($exception, $exceptionContext, $logLevel);
         if ($document) {
             $this->writeLogToElastic($document, self::EXCEPTION_TYPE);
         }
@@ -164,14 +165,16 @@ class ElasticSearchService
      * Creates a elastica document out of the exception data and the request information.
      *
      * @param \Exception||\Throwable $exception
+     * @param array $exceptionContext
      * @param int $statusCode
      * @return Document|null
      * @throws \InvalidArgumentException
      */
-    protected function getDocumentFromException($exception, int $statusCode)
+    protected function getDocumentFromException($exception, array $exceptionContext, int $statusCode)
     {
         $document = array(
             'exception' => $exception,
+            'additionalInformation' => \is_array($exceptionContext) ? json_encode($exceptionContext) : '',
             'reference_code' => $exception instanceof FlowException ? $exception->getReferenceCode() : null,
             'response_status' => $statusCode,
             'short_message' => sprintf('%d %s', $statusCode, Response::getStatusMessageByCode($statusCode)),

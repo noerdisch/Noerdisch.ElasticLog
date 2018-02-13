@@ -29,7 +29,7 @@ class ElasticLogger extends Logger implements ElasticLoggerInterface
      */
     public function logError($error, array $additionalData = [])
     {
-        $this->getElasticSearchService()->logException($error);
+        $this->getElasticSearchService()->logException($error, $additionalData);
         parent::logError($error, $additionalData);
     }
 
