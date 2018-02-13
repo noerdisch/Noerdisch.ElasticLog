@@ -1,0 +1,20 @@
+{
+	"name": "noerdisch/elasticlog",
+	"type": "neos-package",
+	"description": "Logger Backend that uses elasticsearch for Neos Flow",
+	"license": "MIT",
+	"require": {
+		"neos/flow": "4.x",
+		"ruflin/elastica": "^5.3"
+	},
+	"autoload": {
+		"psr-4": {
+			"Noerdisch\\ElasticLog\\": "Classes"
+		}
+	},
+	"extra": {
+		"neos": {
+			"package-key": "Noerdisch.ElasticLog"
+		}
+	}
+}
