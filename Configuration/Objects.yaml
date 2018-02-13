@@ -1,0 +1,12 @@
+Noerdisch\ElasticLog\Log\ElasticLoggerInterface:
+  scope: singleton
+  factoryObjectName: Neos\Flow\Log\LoggerFactory
+  arguments:
+    1:
+      value: 'Elastic_Logger'
+    2:
+      value: 'Neos\Flow\Log\Logger'
+    3:
+      setting: Noerdisch.ElasticLog.Logger.backend
+    4:
+      setting: Noerdisch.ElasticLog.Logger.backendOptions

@@ -1,0 +1,13 @@
+---
+Noerdisch:
+  ElasticLog:
+    Connection:
+      host: 127.0.0.1
+      port: 9200
+      index:
+    Logger:
+      backend: Noerdisch\ElasticLog\Log\Backend\ElasticBackend
+      backendOptions:
+        severityThreshold: '%LOG_INFO%'
+        logIpAddress: true
+        alsoLogWithSystemLogger: false
