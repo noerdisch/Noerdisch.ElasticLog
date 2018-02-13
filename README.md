@@ -4,6 +4,7 @@
 
 [![Packagist](https://img.shields.io/packagist/l/noerdisch/elasticlog.svg?style=flat-square)](https://packagist.org/packages/noerdisch/elasticlog)
 [![Packagist](https://img.shields.io/packagist/v/noerdisch/elasticlog.svg?style=flat-square)](https://packagist.org/packages/noerdisch/elasticlog)
+[![Maintainability](https://api.codeclimate.com/v1/badges/bc9a4fe4b5c15d103e89/maintainability)](https://codeclimate.com/github/noerdisch/Noerdisch.ElasticLog/maintainability)
 [![Twitter Follow](https://img.shields.io/twitter/follow/noerdisch.svg?style=social&label=Follow&style=flat-square)](https://twitter.com/noerdisch)
 
 
