@@ -80,22 +80,10 @@ class ElasticSearchService
      */
     public function logException($exception, array $exceptionContext)
     {
-        $statusCode = null;
-        if ($exception instanceof FlowException) {
-            $statusCode = $exception->getStatusCode();
-        }
-
-        // skip exceptions with status codes matching "skipStatusCodes" setting
-        if (isset($this->settings['skipStatusCodes']) &&
-            \in_array($statusCode, $this->settings['skipStatusCodes'], true)
-        ) {
-            return;
-        }
-
         // set logLevel depending on http status code
-        $logLevel = 4; // warning
-        if ($statusCode === 500) {
-            $logLevel = 3; // error
+        $logLevel = LOG_WARNING;
+        if ($this->getStatusCode($exception) === 500) {
+            $logLevel = LOG_ERR;
         }
 
         $document = $this->getDocumentFromException($exception, $exceptionContext, $logLevel);
@@ -143,14 +131,14 @@ class ElasticSearchService
      *
      * @param string $rawMessage
      * @param array $messageContext
-     * @param int $statusCode
+     * @param int $logLevel
      * @return Document|null
      */
-    protected function getDocumentFromLogMessage($rawMessage, array $messageContext, int $statusCode)
+    protected function getDocumentFromLogMessage($rawMessage, array $messageContext, int $logLevel)
     {
         $document = array(
             'message' => htmlspecialchars(trim($rawMessage)),
-            'response_status' => $statusCode,
+            'log_level' => $logLevel,
             'additionalInformation' => ''
         );
 
@@ -166,17 +154,18 @@ class ElasticSearchService
      *
      * @param \Exception||\Throwable $exception
      * @param array $exceptionContext
-     * @param int $statusCode
+     * @param int $logLevel
      * @return Document|null
      * @throws \InvalidArgumentException
      */
-    protected function getDocumentFromException($exception, array $exceptionContext, int $statusCode)
+    protected function getDocumentFromException($exception, array $exceptionContext, $logLevel)
     {
+        $statusCode = $this->getStatusCode($exception);
         $document = array(
             'exception' => $exception,
             'additionalInformation' => \is_array($exceptionContext) ? json_encode($exceptionContext) : '',
             'reference_code' => $exception instanceof FlowException ? $exception->getReferenceCode() : null,
-            'response_status' => $statusCode,
+            'log_level' => $logLevel,
             'short_message' => sprintf('%d %s', $statusCode, Response::getStatusMessageByCode($statusCode)),
             'code' => $exception->getCode(),
             'file' => $exception->getFile(),
@@ -223,7 +212,26 @@ class ElasticSearchService
             }
         }
 
-        return new Document('', $document, 'logMessage');
+        return new Document('', $document, self::EXCEPTION_TYPE);
+    }
+
+    /**
+     * Returns the status code of the given exception. If the code is configured in skipStatusCodes, we return just
+     * zero.
+     *
+     * @param FlowException $exception
+     * @return int
+     */
+    protected function getStatusCode($exception): int
+    {
+        $statusCode = 0;
+        $skippedStatusCodes = $this->settings['skipStatusCodes'] ?? [];
+
+        if ($exception instanceof FlowException) {
+            $statusCode = $exception->getStatusCode();
+        }
+
+        return \in_array($statusCode, $skippedStatusCodes, true) ? 0 : $statusCode;
     }
 
     /**
