@@ -173,46 +173,74 @@ class ElasticSearchService
         );
 
         if ($this->securityContext !== null && $this->securityContext->isInitialized()) {
-            $account = $this->securityContext->getAccount();
-            if ($account !== null) {
-                $accountIdentifier = $this->persistenceManager->getIdentifierByObject($account);
-                $document['authenticated_account'] = $account->getAccountIdentifier();
-                $document['authenticated_account'] .= ' (' . $accountIdentifier . ')';
-                $document['authenticated_roles'] = implode(', ', array_keys($this->securityContext->getRoles()));
-                if ($this->objectManager->isRegistered(PartyService::class)) {
-                    /** @var PartyService $partyService */
-                    $partyService = $this->objectManager->get(PartyService::class);
-                    $person = $partyService->getAssignedPartyOfAccount($account);
-                    $personIdentifier = $this->persistenceManager->getIdentifierByObject($person);
-                    if ($person instanceof Person) {
-                        $document['authenticated_person'] = (string)$person->getName();
-                        $document['authenticated_person'] .= ' (' . $personIdentifier . ')';
-                    }
+            $accountInformation = $this->getAccountInformation();
+            $document = array_merge($document, $accountInformation);
+        }
+
+        if (Bootstrap::$staticObjectManager instanceof ObjectManagerInterface) {
+            $requestInformation = $this->getRequestInformation();
+            $document = array_merge($document, $requestInformation);
+        }
+
+        return new Document('', $document, self::EXCEPTION_TYPE);
+    }
+
+    /**
+     * Returns information about the currently authenticated user.
+     *
+     * @return array
+     */
+    protected function getAccountInformation(): array
+    {
+        $account = $this->securityContext->getAccount();
+        $accountInformation = [];
+
+        if ($account !== null) {
+            $accountIdentifier = $this->persistenceManager->getIdentifierByObject($account);
+            $accountInformation['authenticated_account'] = $account->getAccountIdentifier();
+            $accountInformation['authenticated_account'] .= ' (' . $accountIdentifier . ')';
+            $accountInformation['authenticated_roles'] = implode(', ', array_keys($this->securityContext->getRoles()));
+            if ($this->objectManager->isRegistered(PartyService::class)) {
+                /** @var PartyService $partyService */
+                $partyService = $this->objectManager->get(PartyService::class);
+                $person = $partyService->getAssignedPartyOfAccount($account);
+                $personIdentifier = $this->persistenceManager->getIdentifierByObject($person);
+                if ($person instanceof Person) {
+                    $accountInformation['authenticated_person'] = (string)$person->getName();
+                    $accountInformation['authenticated_person'] .= ' (' . $personIdentifier . ')';
                 }
             }
         }
 
-        // prepare request details
-        if (Bootstrap::$staticObjectManager instanceof ObjectManagerInterface) {
-            $bootstrap = Bootstrap::$staticObjectManager->get(Bootstrap::class);
-            /* @var Bootstrap $bootstrap */
-            $requestHandler = $bootstrap->getActiveRequestHandler();
-            if ($requestHandler instanceof HttpRequestHandlerInterface) {
-                $request = $requestHandler->getHttpRequest();
-                $requestData = array(
-                    'request_domain' => $request->getHeader('Host'),
-                    'request_remote_addr' => $request->getClientIpAddress(),
-                    'request_path' => $request->getRelativePath(),
-                    'request_uri' => $request->getUri()->getPath(),
-                    'request_user_agent' => $request->getHeader('User-Agent'),
-                    'request_method' => $request->getMethod(),
-                    'request_port' => $request->getPort()
-                );
-                $document = array_merge($document, $requestData);
-            }
+        return $accountInformation;
+    }
+
+    /**
+     * Returns detail information about the current request if we have an active request handler.
+     *
+     * @return array
+     */
+    protected function getRequestInformation(): array
+    {
+        $bootstrap = Bootstrap::$staticObjectManager->get(Bootstrap::class);
+        /* @var Bootstrap $bootstrap */
+        $requestHandler = $bootstrap->getActiveRequestHandler();
+
+        $requestInformation = [];
+        if ($requestHandler instanceof HttpRequestHandlerInterface) {
+            $request = $requestHandler->getHttpRequest();
+            $requestInformation = array(
+                'request_domain' => $request->getHeader('Host'),
+                'request_remote_addr' => $request->getClientIpAddress(),
+                'request_path' => $request->getRelativePath(),
+                'request_uri' => $request->getUri()->getPath(),
+                'request_user_agent' => $request->getHeader('User-Agent'),
+                'request_method' => $request->getMethod(),
+                'request_port' => $request->getPort()
+            );
         }
 
-        return new Document('', $document, self::EXCEPTION_TYPE);
+        return $requestInformation;
     }
 
     /**
