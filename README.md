@@ -19,12 +19,15 @@ package also provides a backend to log message of Flows Logger classes to a elas
 
 Just add "noerdisch/elasticlog" as dependency to your composer.json and run a "composer update" in your project's root folder
 or simply execute:
+
 ```
 composer require noerdisch/elasticlog
 ```
+
 from your project's root.
 
 Configure your Elastic Server:
+
 ```yaml
 Noerdisch:
   ElasticLog:
@@ -143,7 +146,7 @@ Noerdisch:
 ### Thanks
 
 The package was build on the Graylog package from [Yeebase](https://github.com/yeebase/Yeebase.Graylog).
-Thanks to the nice people from Yeebase for sharing it. Checkout there repositories on github. They also ❤️ Neos and
+Thanks to the nice people from Yeebase for sharing it. Checkout their repositories on github. They also ❤️ Neos and
 the Neos flow framework.
 
-We did not use Graylog and wanted to use elastic without the man in the middle.
+We are not using Graylog since we wanted to make use of the whole ELK stack elastic is offering
