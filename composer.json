@@ -2,7 +2,13 @@
 	"name": "noerdisch/elasticlog",
 	"type": "neos-package",
 	"description": "Logger Backend that uses elasticsearch for Neos Flow",
+	"homepage": "https://www.noerdisch.com",
 	"license": "MIT",
+	"support": {
+		"email": "moin@noerdisch.de",
+		"issues": "https://github.com/noerdisch/Noerdisch.ElasticLog/issues",
+		"source": "https://github.com/noerdisch/Noerdisch.ElasticLog/releases"
+	},
 	"require": {
 		"neos/flow": "4.x",
 		"ruflin/elastica": "^5.3"
