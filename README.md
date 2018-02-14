@@ -1,5 +1,7 @@
 <p align="center">
-    <img src="https://cdn.rawgit.com/markusguenther/abe70d34f4a4621aed0ef504c5d0192b/raw/5bf0f3df328e58ba7aad067a56cbd1c15ef69491/logo_full.svg" width="300">
+    <a href="https://www.noerdisch.de" target="_blank">
+        <img src="https://cdn.rawgit.com/markusguenther/abe70d34f4a4621aed0ef504c5d0192b/raw/5bf0f3df328e58ba7aad067a56cbd1c15ef69491/logo_full.svg" width="300">
+    </a>
 </p>
 
 [![Packagist](https://img.shields.io/packagist/l/noerdisch/elasticlog.svg?style=flat-square)](https://packagist.org/packages/noerdisch/elasticlog)
@@ -12,9 +14,6 @@
 
 The Noerdisch.ElasticLog Flow package logs exceptions and single messages to a configured elastic search server. This
 package also provides a backend to log message of Flows Logger classes to a elastic search server.
-
-The package was build on the Graylog package from [Yeebase](https://github.com/yeebase/Yeebase.Graylog). Thanks to the nice people from Yeebase for sharing it.
-We did not use Graylog and wanted to use elastic without the man in the middle.
 
 ## Installation & configuration
 
@@ -78,3 +77,73 @@ Noerdisch:
       backendOptions:
         alsoLogWithSystemLogger: true
 ```
+
+
+### Logging backend
+
+To configure ElasticBackend as the default logging backend, put this in your Settings.yaml:
+
+```
+Neos:
+  Flow:
+    log:
+      systemLogger:
+        backend: Noerdisch\ElasticLog\Log\Backend\ElasticBackend
+      securityLogger:
+        backend: Noerdisch\ElasticLog\Log\Backend\ElasticBackend
+      sqlLogger:
+        backend: Noerdisch\ElasticLog\Log\Backend\ElasticBackend
+      i18nLogger:
+        backend: Noerdisch\ElasticLog\Log\Backend\ElasticBackend
+```
+
+### Log exceptions
+
+
+Activate the exception handler and configure the connection to your elastic search server in your Settings.yaml:
+
+```yaml
+Neos:
+  Flow:
+    error:
+      exceptionHandler:
+        className: 'Noerdisch\ElasticLog\Error\ElasticLogExceptionHandler'
+```
+
+Now all Exceptions that are shown to the Web or CLI are logged to elastic.
+
+*Note:* For `Development` context, the `Neos.Flow` package overrides this setting. Make sure to add this configuration
+in the right context Settings.yaml.
+
+If you want to log additionally *all* Exceptions to elastic search you should replace the systemLogger as well.
+This will log all errors that are logged with the SystemLogger to ElasticLog as well to the disk.
+By default Flow will only log a single line to the system log aka "See also ... .txt".
+The ElasticLogger will also log the full Exception.
+
+```yaml
+Neos:
+  Flow:
+    log:
+      systemLogger:
+        logger: Noerdisch\ElasticLog\Log\ElasticLogger
+```
+
+
+#### Filter exceptions
+
+To skip certain exceptions from being logged you can either use the `skipStatusCodes` setting:
+
+```yaml
+Noerdisch:
+  ElasticLog:
+     # don't log any exceptions that would result in a HTTP status 403 (access denied) / 404 (not found)
+    skipStatusCodes: [403, 404]
+```
+
+### Thanks
+
+The package was build on the Graylog package from [Yeebase](https://github.com/yeebase/Yeebase.Graylog).
+Thanks to the nice people from Yeebase for sharing it. Checkout there repositories on github. They also ❤️ Neos and
+the Neos flow framework.
+
+We did not use Graylog and wanted to use elastic without the man in the middle.
