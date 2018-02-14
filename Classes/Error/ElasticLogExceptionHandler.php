@@ -2,11 +2,20 @@
 
 namespace Noerdisch\ElasticLog\Error;
 
+/*
+ * This file is part of the Noerdisch.ElasticLog package.
+ *
+ * (c) Noerdisch - Digital Solutions www.noerdisch.com
+ *
+ * This package is Open Source Software. For the full copyright and license
+ * information, please view the LICENSE file which was distributed with this
+ * source code.
+ */
+
 use Neos\Flow\Annotations as Flow;
 use Neos\Flow\Error\ProductionExceptionHandler;
 use Neos\Flow\ObjectManagement\DependencyInjection\DependencyProxy;
 use Noerdisch\ElasticLog\Service\ElasticSearchService;
-
 
 /**
  * Production Exception handler that reports exceptions to a elastic search server.
