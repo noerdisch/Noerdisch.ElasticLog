@@ -64,7 +64,11 @@ class SomeClass
 
     public function yourMethod()
     {
-      $this->logger->log('Your Message')
+        try {
+            $this->callSomeMethod();
+        } catch (Exception $exception) {
+            $this->logger->logThrowable($exception, ['identifier' => 'foo']);
+        }
     }
 }
 
