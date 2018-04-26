@@ -10,7 +10,7 @@
         "source": "https://github.com/noerdisch/Noerdisch.ElasticLog/releases"
     },
     "require": {
-        "neos/flow": "4.x",
+        "neos/flow": ">4.2.0",
         "ruflin/elastica": "^5.3"
     },
     "autoload": {
