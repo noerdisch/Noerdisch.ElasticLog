@@ -32,15 +32,14 @@ class ElasticLogger extends Logger implements ElasticLoggerInterface
     /**
      * Writes information about the given exception to elastic search including the stacktrace.
      *
-     * @param object $error \Exception or \Throwable
+     * @param \Throwable $throwable
      * @param array $additionalData Additional data to log
      * @return void
      * @throws \InvalidArgumentException
      */
-    public function logError($error, array $additionalData = [])
+    public function logThrowable(\Throwable $throwable, array $additionalData = [])
     {
-        $this->getElasticSearchService()->logException($error, $additionalData);
-        parent::logError($error, $additionalData);
+        $this->getElasticSearchService()->logException($throwable, $additionalData);
     }
 
     /**
