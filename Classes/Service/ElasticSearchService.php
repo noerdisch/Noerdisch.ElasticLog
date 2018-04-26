@@ -33,9 +33,9 @@ use Neos\Party\Domain\Service\PartyService;
  */
 class ElasticSearchService
 {
-    const DEFAULT_TYPE = 'ElasticLog';
+    public const DEFAULT_TYPE = 'ElasticLog';
 
-    const EXCEPTION_TYPE = 'ElasticException';
+    public const EXCEPTION_TYPE = 'ElasticException';
 
     /**
      * @Flow\Inject
@@ -83,20 +83,20 @@ class ElasticSearchService
     /**
      * Converts exception data to an eleastic document and write the document to the elastic index.
      *
-     * @param \Exception||\Throwable $exception
-     * @param array $exceptionContext
+     * @param \Throwable $throwable
+     * @param array $context
      * @return void
      * @throws \InvalidArgumentException
      */
-    public function logException($exception, array $exceptionContext)
+    public function logException(\Throwable $throwable, array $context): void
     {
         // set logLevel depending on http status code
         $logLevel = LOG_WARNING;
-        if ($this->getStatusCode($exception) === 500) {
+        if ($throwable instanceof FlowException && $this->getStatusCode($throwable) === 500) {
             $logLevel = LOG_ERR;
         }
 
-        $document = $this->getDocumentFromException($exception, $exceptionContext, $logLevel);
+        $document = $this->getDocumentFromException($throwable, $context, $logLevel);
         if ($document) {
             $this->writeLogToElastic($document, self::EXCEPTION_TYPE);
         }
@@ -109,7 +109,7 @@ class ElasticSearchService
      * @param array $messageContext
      * @param int $logLevel
      */
-    public function logMessage($rawMessage, array $messageContext, $logLevel = LOG_INFO)
+    public function logMessage($rawMessage, array $messageContext, $logLevel = LOG_INFO): void
     {
         $document = $this->getDocumentFromLogMessage($rawMessage, $messageContext, $logLevel);
         if ($document) {
@@ -144,7 +144,7 @@ class ElasticSearchService
      * @param int $logLevel
      * @return Document|null
      */
-    protected function getDocumentFromLogMessage($rawMessage, array $messageContext, int $logLevel)
+    protected function getDocumentFromLogMessage($rawMessage, array $messageContext, int $logLevel): ?Document
     {
         $document = array(
             'message' => htmlspecialchars(trim($rawMessage)),
@@ -168,7 +168,7 @@ class ElasticSearchService
      * @return Document|null
      * @throws \InvalidArgumentException
      */
-    protected function getDocumentFromException($exception, array $exceptionContext, $logLevel)
+    protected function getDocumentFromException($exception, array $exceptionContext, $logLevel): ?Document
     {
         $statusCode = $this->getStatusCode($exception);
         $document = array(
@@ -277,7 +277,7 @@ class ElasticSearchService
      *
      * @return Index|null
      */
-    public function getElasticIndex()
+    public function getElasticIndex(): ?Index
     {
         $this->getClient();
         if ($this->client === null || !isset($this->connectionSettings['index'])) {
