@@ -23,6 +23,7 @@ use Neos\Flow\Http\HttpRequestHandlerInterface;
 use Neos\Flow\Http\Response;
 use Neos\Flow\ObjectManagement\ObjectManagerInterface;
 use Neos\Flow\Persistence\PersistenceManagerInterface;
+use Neos\Flow\Security\Account;
 use Neos\Flow\Security\Context;
 use Neos\Party\Domain\Model\Person;
 use Neos\Party\Domain\Service\PartyService;
@@ -205,24 +206,40 @@ class ElasticSearchService
         $account = $this->securityContext->getAccount();
         $accountInformation = [];
 
-        if ($account !== null) {
-            $accountIdentifier = $this->persistenceManager->getIdentifierByObject($account);
-            $accountInformation['authenticated_account'] = $account->getAccountIdentifier();
-            $accountInformation['authenticated_account'] .= ' (' . $accountIdentifier . ')';
-            $accountInformation['authenticated_roles'] = implode(', ', array_keys($this->securityContext->getRoles()));
-            if ($this->objectManager->isRegistered(PartyService::class)) {
-                /** @var PartyService $partyService */
-                $partyService = $this->objectManager->get(PartyService::class);
-                $person = $partyService->getAssignedPartyOfAccount($account);
-                $personIdentifier = $this->persistenceManager->getIdentifierByObject($person);
-                if ($person instanceof Person) {
-                    $accountInformation['authenticated_person'] = (string)$person->getName();
-                    $accountInformation['authenticated_person'] .= ' (' . $personIdentifier . ')';
-                }
-            }
+        if ($account === null) {
+            return $accountInformation;
+        }
+
+        $accountIdentifier = $this->persistenceManager->getIdentifierByObject($account);
+        $accountInformation['authenticated_account'] = $account->getAccountIdentifier();
+        $accountInformation['authenticated_account'] .= ' (' . $accountIdentifier . ')';
+        $accountInformation['authenticated_roles'] = implode(', ', array_keys($this->securityContext->getRoles()));
+        if ($this->objectManager->isRegistered(PartyService::class)) {
+            $accountInformation['authenticated_person'] = $this->getPersonInformationByAccount($account);
         }
 
         return $accountInformation;
+    }
+
+    /**
+     * Returns information about the person of the given account. The string contains the name and the identifier.
+     *
+     * @param Account $account
+     * @return string
+     */
+    protected function getPersonInformationByAccount($account): string
+    {
+        /** @var PartyService $partyService */
+        $partyService = $this->objectManager->get(PartyService::class);
+        $person = $partyService->getAssignedPartyOfAccount($account);
+        $personIdentifier = $this->persistenceManager->getIdentifierByObject($person);
+        $authenticatedPerson = '';
+        if ($person instanceof Person) {
+            $authenticatedPerson = (string)$person->getName();
+            $authenticatedPerson .= ' (' . $personIdentifier . ')';
+        }
+
+        return $authenticatedPerson;
     }
 
     /**
