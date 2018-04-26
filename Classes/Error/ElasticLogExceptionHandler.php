@@ -34,11 +34,12 @@ class ElasticLogExceptionHandler extends ProductionExceptionHandler
     /**
      * @param \Exception|\Throwable $exception
      * @return void
+     * @throws \InvalidArgumentException
      */
     protected function echoExceptionWeb($exception)
     {
         if (!empty($this->renderingOptions['logException'])) {
-            $this->elasticSearchService()->logException($exception);
+            $this->getElasticSearchService()->logException($exception, []);
         }
 
         parent::echoExceptionWeb($exception);
@@ -47,30 +48,33 @@ class ElasticLogExceptionHandler extends ProductionExceptionHandler
     /**
      * @param \Exception|\Throwable $exception The exception
      * @return void
+     * @throws \InvalidArgumentException
      */
     protected function echoExceptionCli($exception)
     {
         if (isset($this->renderingOptions['logException']) && $this->renderingOptions['logException']) {
-            $this->getGraylogService()->logException($exception);
+            $this->getElasticSearchService()->logException($exception, []);
         }
 
         parent::echoExceptionCli($exception);
     }
 
     /**
-     * Returns an instance of the injected GraylogService (including a fallback to a manually instantiated instance
-     * if Dependency Injection is not (yet) available)
+     * Returns an instance of the injected ElasticSearchService (including a fallback to a manually instantiated
+     * instance if Dependency Injection is not (yet) available)
      *
-     * @return GraylogService
+     * @return ElasticSearchService
      */
-    private function getGraylogService()
+    private function getElasticSearchService(): ElasticSearchService
     {
-        if ($this->graylogService instanceof GraylogService) {
-            return $this->graylogService;
-        } elseif ($this->graylogService instanceof DependencyProxy) {
-            return $this->graylogService->_activateDependency();
-        } else {
-            return new GraylogService();
+        if ($this->elasticSearchService instanceof ElasticSearchService) {
+            return $this->elasticSearchService;
         }
+
+        if ($this->elasticSearchService instanceof DependencyProxy) {
+            return $this->elasticSearchService->_activateDependency();
+        }
+
+        return new ElasticSearchService();
     }
 }
