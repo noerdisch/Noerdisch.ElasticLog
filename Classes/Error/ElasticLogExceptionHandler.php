@@ -32,7 +32,7 @@ class ElasticLogExceptionHandler extends ProductionExceptionHandler
     protected $elasticSearchService;
 
     /**
-     * @param \Exception|\Throwable $exception
+     * @param \Throwable $exception
      * @return void
      * @throws \InvalidArgumentException
      */
@@ -46,13 +46,13 @@ class ElasticLogExceptionHandler extends ProductionExceptionHandler
     }
 
     /**
-     * @param \Exception|\Throwable $exception The exception
+     * @param \Throwable $exception
      * @return void
      * @throws \InvalidArgumentException
      */
-    protected function echoExceptionCli($exception)
+    protected function echoExceptionCli(\Throwable $exception)
     {
-        if (isset($this->renderingOptions['logException']) && $this->renderingOptions['logException']) {
+        if (!empty($this->renderingOptions['logException'])) {
             $this->getElasticSearchService()->logException($exception, []);
         }
 
